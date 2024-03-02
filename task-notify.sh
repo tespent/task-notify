@@ -50,6 +50,22 @@ gather_stderr() {
 	tee /dev/stderr > "$LOGDIR/stderr"
 }
 
+if [[ "$(uname)" == "Darwin" ]]; then
+	showts() {
+		"$PYTHON" -c "import time;print(time.time())"
+	}
+	timescript() {
+		time script -e "$3" "$1"
+	}
+else
+	showts() {
+		date '+%s.%N'
+	}
+	timescript() {
+		time script -e -c "$1" -t"$2" "$3"
+	}
+fi
+
 run() {
 	if [[ ! $USE_TTY = 0 ]]; then
 		declare -a cmd=("$@")
@@ -60,7 +76,7 @@ run() {
 		} > "$LOGDIR/command.sh"
 		chmod +x "$LOGDIR/command.sh"
 		{
-			time script -e -c "$LOGDIR/command.sh" -t"$LOGDIR/timing" "$LOGDIR/output"
+			timescript "$LOGDIR/command.sh" "$LOGDIR/timing" "$LOGDIR/output"
 		} 2>"$LOGDIR/time"
 		return $?
 	else
@@ -73,12 +89,12 @@ run() {
 	fi
 }
 
-date '+%s.%N' > "$LOGDIR/start"
+showts > "$LOGDIR/start"
 
 run "$@"
 CODE=$?
 
-date '+%s.%N' > "$LOGDIR/end"
+showts > "$LOGDIR/end"
 
 cat "$LOGDIR/time"
 
