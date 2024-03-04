@@ -15,7 +15,7 @@ Some commands (such as `make`) take a long time to run. While waiting, you will 
 **Contributions are welcomed!**
 
 ## prerequisites
-**only tested on debian**
+**only tested on debian and macOS**
 - python 3.x
 - curl
 - bash
